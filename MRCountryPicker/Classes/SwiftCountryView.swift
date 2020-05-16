@@ -44,7 +44,7 @@ class SwiftCountryView: NibLoadingView {
     @IBOutlet weak var flagImageView: UIImageView!
     @IBOutlet weak var countryNameLabel: UILabel!
     @IBOutlet weak var countryCodeLabel: UILabel!
-    
+    var isCountryFlagShow = true
     override init(frame: CGRect) {
         super.init(frame: frame)
     }
@@ -54,12 +54,13 @@ class SwiftCountryView: NibLoadingView {
     }
     
     func setup(_ country: Country, locale: Locale?) {
-        if let flag = country.flag {
+        if let flag = country.flag{
             flagImageView.layer.borderWidth = 0.5
             flagImageView.layer.borderColor = UIColor.darkGray.cgColor
             flagImageView.layer.cornerRadius = 1
             flagImageView.layer.masksToBounds = true
             flagImageView.image = flag
+            flagImageView.isHidden = !isCountryFlagShow
         }
         
         countryCodeLabel.text = country.phoneCode

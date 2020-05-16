@@ -27,7 +27,7 @@ open class MRCountryPicker: UIPickerView, UIPickerViewDelegate, UIPickerViewData
     open var selectedLocale: Locale?
     open weak var countryPickerDelegate: MRCountryPickerDelegate?
     open var showPhoneNumbers: Bool = true
-    
+    open var isCountryFlag = true
     override init(frame: CGRect) {
         super.init(frame: frame)
         setup()
@@ -140,6 +140,7 @@ open class MRCountryPicker: UIPickerView, UIPickerViewDelegate, UIPickerViewData
         } else {
             resultView = view as! SwiftCountryView
         }
+        resultView.isCountryFlagShow = self.isCountryFlag
         
         resultView.setup(countries[row], locale: self.selectedLocale)
         if !showPhoneNumbers {

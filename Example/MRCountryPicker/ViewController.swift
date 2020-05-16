@@ -13,6 +13,7 @@ class ViewController: UIViewController, MRCountryPickerDelegate {
         super.viewDidLoad()
         countryPicker.countryPickerDelegate = self
         countryPicker.showPhoneNumbers = true
+        countryPicker.isCountryFlag = false;
         countryPicker.setCountry("SI")
         countryPicker.setLocale("sl_SI")
         countryPicker.setCountryByName("Canada")

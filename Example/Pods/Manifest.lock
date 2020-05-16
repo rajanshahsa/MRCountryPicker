@@ -1,16 +1,16 @@
 PODS:
-  - MRCountryPicker (0.0.7)
+  - MRCountryPicker (0.0.9)
 
 DEPENDENCIES:
   - MRCountryPicker (from `../`)
 
 EXTERNAL SOURCES:
   MRCountryPicker:
-    :path: ../
+    :path: "../"
 
 SPEC CHECKSUMS:
-  MRCountryPicker: bdda8413e5f63e58f8a074b50465f17e4abaebe2
+  MRCountryPicker: 382260a8113261c4a40f5cd1b70b46250da6893e
 
 PODFILE CHECKSUM: 99a0a90a748f56362c95328c8f6f8b054f527314
 
-COCOAPODS: 1.4.0
+COCOAPODS: 1.8.4
