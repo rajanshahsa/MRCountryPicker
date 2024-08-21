@@ -62,10 +62,9 @@ class SwiftCountryView: NibLoadingView {
             flagImageView.image = flag
             flagImageView.isHidden = !isCountryFlagShow
         }
-        
         if let code = country.code,
             let locale = locale {
-            countryNameLabel.text = locale.localizedString(forRegionCode: code)
+            countryNameLabel.text = code == "PS" ? country.name : locale.localizedString(forRegionCode: code)
             countryCodeLabel.text = country.phoneCode?.converteDigitsToLocale(locale)
         }else{
             countryNameLabel.text = country.name
