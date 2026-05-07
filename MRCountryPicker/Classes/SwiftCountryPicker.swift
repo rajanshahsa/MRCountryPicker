@@ -91,6 +91,16 @@ open class MRCountryPicker: UIPickerView, UIPickerViewDelegate, UIPickerViewData
             }
         }
     }
+    
+    // get country data by country code
+    open func getCountryByCode(code: String) -> (code: String, name: String, phoneCode: String)? {
+        
+        if let country = countryNamesByCode().first(where: { $0.code == code }),let countryCode = country.code, let name = country.name, let phoneCode = country.phoneCode
+        {
+            return (countryCode, name, phoneCode)
+        }
+        return nil
+    }
 
     func setCountryByRow(row: Int) {
         self.selectRow(row, inComponent: 0, animated: true)
