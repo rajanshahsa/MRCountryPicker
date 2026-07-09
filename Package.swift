@@ -18,17 +18,31 @@ let package = Package(
         )
     ],
     targets: [
-        // Main library target. Adjust the path if your sources live elsewhere.
+        // Main library target configured to match the repo layout shown in the screenshot.
+        // Sources: MRCountryPicker/Classes/**
+        // Resources: MRCountryPicker/Assets/** (Data, Images, etc.)
         .target(
             name: "MRCountryPicker",
-            path: "Sources",
+            path: "MRCountryPicker",
             exclude: [
-                // Exclude non-source folders if present in Sources
+                // Exclude non-source directories under the repo root that shouldn't be part of the target
+                "../Example",
+                "../Pods",
+                // Exclude top-level files not needed in compilation if they appear within this path
+                "README.md",
+                "CHANGELOG",
+                "LICENSE",
+                "MRCountryPicker.podspec"
+            ],
+            sources: [
+                // Explicitly include Swift sources under Classes
+                "Classes/SwiftCountryPicker",
+                "Classes/SwiftCountryView"
             ],
             resources: [
-                // If the picker uses assets (flags JSON, images, etc.) inside Sources,
-                // add them here, for example:
-                // .process(["Resources"]) 
+                // Process assets used by the picker (flags data, images, etc.)
+                .process("Assets/Data"),
+                .process("Assets/Images")
             ]
         ),
 
