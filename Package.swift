@@ -17,8 +17,11 @@ let package = Package(
         .target(
             name: "MRCountryPicker",
             path: "MRCountryPicker",
-            sources: ["Classes"],
-            resources: [.process("Assets")]
+            resources: [
+                .process("Assets/SwiftCountryPicker.bundle/Images"),
+                .process("Assets/SwiftCountryPicker.bundle/Data"),
+                .process("Classes/SwiftCountryView.xib")
+              ]
         )
     ]
 )

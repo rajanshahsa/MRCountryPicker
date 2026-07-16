@@ -11,7 +11,8 @@ struct Country {
     var phoneCode: String?
     var flag: UIImage? {
         guard let code = self.code else { return nil }
-        return UIImage(named: "SwiftCountryPicker.bundle/Images/\(code.uppercased())", in: Bundle(for: MRCountryPicker.self), compatibleWith: nil)
+        let imageName = code.uppercased()
+        return UIImage(named: imageName, in: Bundle.module, compatibleWith: nil)
     }
 
     init(code: String?, name: String?, phoneCode: String?) {
@@ -103,19 +104,44 @@ open class MRCountryPicker: UIPickerView, UIPickerViewDelegate, UIPickerViewData
     }
 
     func setCountryByRow(row: Int) {
+        guard countries.indices.contains(row) else { return }
         self.selectRow(row, inComponent: 0, animated: true)
         let country = countries[row]
-        if let countryPickerDelegate = countryPickerDelegate {
-            countryPickerDelegate.countryPhoneCodePicker(self, didSelectCountryWithName: country.name!, countryCode: country.code!, phoneCode: country.phoneCode!, flag: country.flag!)
-        }
+        guard let name = country.name,
+              let code = country.code,
+              let phone = country.phoneCode,
+              let flag = country.flag else { return }
+        countryPickerDelegate?.countryPhoneCodePicker(self,
+                                                      didSelectCountryWithName: name,
+                                                      countryCode: code,
+                                                      phoneCode: phone,
+                                                      flag: flag)
     }
     
     // Populates the metadata from the included json file resource
-    
+    func loadCountryCodesData() -> Data? {
+        if let url = Bundle.module.url(forResource: "countryCodes",
+                                       withExtension: "json",
+                                       subdirectory: "SwiftCountryPicker.bundle/Data") {
+            return try? Data(contentsOf: url)
+        }
+        // Fallback: just Data
+        if let url = Bundle.module.url(forResource: "countryCodes",
+                                       withExtension: "json",
+                                       subdirectory: "Data") {
+            return try? Data(contentsOf: url)
+        }
+        // Fallback: root
+        if let url = Bundle.module.url(forResource: "countryCodes",
+                                       withExtension: "json") {
+            return try? Data(contentsOf: url)
+        }
+        return nil
+    }
     func countryNamesByCode() -> [Country] {
         var countries = [Country]()
         let frameworkBundle = Bundle(for: type(of: self))
-        guard let jsonPath = frameworkBundle.path(forResource: "SwiftCountryPicker.bundle/Data/countryCodes", ofType: "json"), let jsonData = try? Data(contentsOf: URL(fileURLWithPath: jsonPath)) else {
+        guard let jsonData = loadCountryCodesData() else {
             return countries
         }
         
@@ -200,9 +226,16 @@ open class MRCountryPicker: UIPickerView, UIPickerViewDelegate, UIPickerViewData
     }
     
     open func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        guard countries.indices.contains(row) else { return }
         let country = countries[row]
-        if let countryPickerDelegate = countryPickerDelegate {
-            countryPickerDelegate.countryPhoneCodePicker(self, didSelectCountryWithName: country.name!, countryCode: country.code!, phoneCode: country.phoneCode!, flag: country.flag!)
-        }
+        guard let name = country.name,
+              let code = country.code,
+              let phone = country.phoneCode,
+              let flag = country.flag else { return }
+        countryPickerDelegate?.countryPhoneCodePicker(self,
+                                                      didSelectCountryWithName: name,
+                                                      countryCode: code,
+                                                      phoneCode: phone,
+                                                      flag: flag)
     }
 }

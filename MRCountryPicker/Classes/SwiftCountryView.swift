@@ -1,4 +1,3 @@
-
 import Foundation
 import UIKit
 
@@ -28,10 +27,12 @@ class NibLoadingView: UIView {
     }
     
     fileprivate func loadViewFromNib() -> UIView {
-        let bundle = Bundle(for: type(of: self))
-        let nib = UINib(nibName: String(describing: type(of: self)), bundle: bundle)
-        let nibView = nib.instantiate(withOwner: self, options: nil).first as! UIView
-        
+        let nibName = String(describing: type(of: self))
+        let nib = UINib(nibName: nibName, bundle: Bundle.module)
+        guard let nibView = nib.instantiate(withOwner: self, options: nil).first as? UIView else {
+            assertionFailure("Failed to load nib named \(nibName) from Bundle.module")
+            return UIView()
+        }
         return nibView
     }
     
