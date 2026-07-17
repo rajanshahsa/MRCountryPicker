@@ -1,6 +1,16 @@
 import Foundation
 import UIKit
 
+private func mr_resourcesBundle(for type: AnyClass) -> Bundle {
+    #if SWIFT_PACKAGE
+    // When built as a Swift Package, resources live in Bundle.module
+    return Bundle.module
+    #else
+    // When integrated via CocoaPods or direct source, use the class's bundle
+    return Bundle(for: type)
+    #endif
+}
+
 class NibLoadingView: UIView {
     
     @IBOutlet weak var view: UIView!
@@ -28,9 +38,10 @@ class NibLoadingView: UIView {
     
     fileprivate func loadViewFromNib() -> UIView {
         let nibName = String(describing: type(of: self))
-        let nib = UINib(nibName: nibName, bundle: Bundle.module)
+        let bundle = mr_resourcesBundle(for: type(of: self))
+        let nib = UINib(nibName: nibName, bundle: bundle)
         guard let nibView = nib.instantiate(withOwner: self, options: nil).first as? UIView else {
-            assertionFailure("Failed to load nib named \(nibName) from Bundle.module")
+            assertionFailure("Failed to load nib named \(nibName) from bundle: \(bundle)")
             return UIView()
         }
         return nibView
@@ -106,3 +117,4 @@ extension String {
         return converted
     }
 }
+
