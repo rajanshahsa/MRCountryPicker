@@ -1,6 +1,14 @@
 import UIKit
 import CoreTelephony
 
+private func mr_resourcesBundle(for type: AnyClass) -> Bundle {
+    #if SWIFT_PACKAGE
+    return Bundle.module
+    #else
+    return Bundle(for: type)
+    #endif
+}
+
 @objc public protocol MRCountryPickerDelegate {
     func countryPhoneCodePicker(_ picker: MRCountryPicker, didSelectCountryWithName name: String, countryCode: String, phoneCode: String, flag: UIImage)
 }
@@ -12,7 +20,17 @@ struct Country {
     var flag: UIImage? {
         guard let code = self.code else { return nil }
         let imageName = code.uppercased()
-        return UIImage(named: imageName, in: Bundle.module, compatibleWith: nil)
+        let bundle = mr_resourcesBundle(for: MRCountryPicker.self)
+        // First try named lookup in the bundle
+        if let img = UIImage(named: imageName, in: bundle, compatibleWith: nil) {
+            return img
+        }
+        // Fallback: try Images subdirectories used by SPM and Pods
+        if let path = bundle.path(forResource: imageName, ofType: "png", inDirectory: "SwiftCountryPicker.bundle/Images") ??
+                      bundle.path(forResource: imageName, ofType: "png", inDirectory: "Images") {
+            return UIImage(contentsOfFile: path)
+        }
+        return nil
     }
 
     init(code: String?, name: String?, phoneCode: String?) {
@@ -117,52 +135,67 @@ open class MRCountryPicker: UIPickerView, UIPickerViewDelegate, UIPickerViewData
                                                       phoneCode: phone,
                                                       flag: flag)
     }
-    
+    private func mr_resourcesBundle(for type: AnyClass) -> Bundle {
+        #if SWIFT_PACKAGE
+        // SPM exposes resources through Bundle.module
+        return Bundle.module
+        #else
+        // CocoaPods/direct integration: use the owning class bundle
+        return Bundle(for: type)
+        #endif
+    }
     // Populates the metadata from the included json file resource
     func loadCountryCodesData() -> Data? {
-        if let url = Bundle.module.url(forResource: "countryCodes",
-                                       withExtension: "json",
-                                       subdirectory: "SwiftCountryPicker.bundle/Data") {
+        // Resolve the bundle based on how the code is integrated
+        let bundle = mr_resourcesBundle(for: type(of: self))
+
+        // Try SPM-style subdirectory
+        if let url = bundle.url(forResource: "countryCodes",
+                                withExtension: "json",
+                                subdirectory: "SwiftCountryPicker.bundle/Data") {
             return try? Data(contentsOf: url)
         }
-        // Fallback: just Data
-        if let url = Bundle.module.url(forResource: "countryCodes",
-                                       withExtension: "json",
-                                       subdirectory: "Data") {
+
+        // Try a flatter layout (e.g., Assets/Data)
+        if let url = bundle.url(forResource: "countryCodes",
+                                withExtension: "json",
+                                subdirectory: "Data") {
             return try? Data(contentsOf: url)
         }
-        // Fallback: root
-        if let url = Bundle.module.url(forResource: "countryCodes",
-                                       withExtension: "json") {
+
+        // Try root of the bundle
+        if let url = bundle.url(forResource: "countryCodes", withExtension: "json") {
             return try? Data(contentsOf: url)
         }
+
+        // Pods-style: path(forResource:) with full subpath in the name
+        if let path = bundle.path(forResource: "SwiftCountryPicker.bundle/Data/countryCodes",
+                                  ofType: "json") {
+            return try? Data(contentsOf: URL(fileURLWithPath: path))
+        }
+
+        // Last resort: just fail
         return nil
     }
+    
     func countryNamesByCode() -> [Country] {
         var countries = [Country]()
-        let frameworkBundle = Bundle(for: type(of: self))
         guard let jsonData = loadCountryCodesData() else {
             return countries
         }
-        
         do {
-            if let jsonObjects = try JSONSerialization.jsonObject(with: jsonData, options: JSONSerialization.ReadingOptions.allowFragments) as? NSArray {
+            if let jsonObjects = try JSONSerialization.jsonObject(with: jsonData,
+                                                                  options: .allowFragments) as? NSArray {
+                for jsonObject in jsonObjects {
+                    guard let countryObj = jsonObject as? NSDictionary else { return countries }
+                    guard let code = countryObj["code"] as? String,
+                          let phoneCode = countryObj["dial_code"] as? String,
+                          let name = countryObj["name"] as? String else { return countries }
 
-                    for jsonObject in jsonObjects {
-                        
-                        guard let countryObj = jsonObject as? NSDictionary else {
-                            return countries
-                        }
-                        
-                        guard let code = countryObj["code"] as? String, let phoneCode = countryObj["dial_code"] as? String, let name = countryObj["name"] as? String else {
-                            return countries
-                        }
-
-                        let country = Country(code: code, name: name, phoneCode: phoneCode)
-                        countries.append(country)
-                    }
-
+                    let country = Country(code: code, name: name, phoneCode: phoneCode)
+                    countries.append(country)
                 }
+            }
         } catch {
             return countries
         }
@@ -239,3 +272,4 @@ open class MRCountryPicker: UIPickerView, UIPickerViewDelegate, UIPickerViewData
                                                       flag: flag)
     }
 }
+
