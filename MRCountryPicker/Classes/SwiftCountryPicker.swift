@@ -14,10 +14,10 @@ private func mr_resourcesBundle(for type: AnyClass) -> Bundle {
 }
 
 public struct Country {
-    var code: String?
-    var name: String?
-    var phoneCode: String?
-    var flag: UIImage? {
+    public var code: String?
+    public var name: String?
+    public var phoneCode: String?
+    public var flag: UIImage? {
         guard let code = self.code else { return nil }
         let imageName = code.uppercased()
         let bundle = mr_resourcesBundle(for: MRCountryPicker.self)
