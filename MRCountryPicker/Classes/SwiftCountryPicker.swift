@@ -52,11 +52,8 @@ open class MRCountryPicker: UIPickerView, UIPickerViewDelegate, UIPickerViewData
             setup()
         }
     }
-    open var countryData: [Country]?{
-        didSet{
-            setup()
-        }
-    }
+    open var countryData: [Country]?
+       
     init(externalCountryData:Data?) {
         super.init(frame: .zero)
         self.externalCountryData = externalCountryData
