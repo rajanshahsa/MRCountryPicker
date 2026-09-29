@@ -13,11 +13,11 @@ private func mr_resourcesBundle(for type: AnyClass) -> Bundle {
     func countryPhoneCodePicker(_ picker: MRCountryPicker, didSelectCountryWithName name: String, countryCode: String, phoneCode: String, flag: UIImage)
 }
 
-struct Country {
-    var code: String?
-    var name: String?
-    var phoneCode: String?
-    var flag: UIImage? {
+public struct Country {
+    public var code: String?
+    public var name: String?
+    public var phoneCode: String?
+    public var flag: UIImage? {
         guard let code = self.code else { return nil }
         let imageName = code.uppercased()
         let bundle = mr_resourcesBundle(for: MRCountryPicker.self)
@@ -52,7 +52,8 @@ open class MRCountryPicker: UIPickerView, UIPickerViewDelegate, UIPickerViewData
             setup()
         }
     }
-    
+    open var countryData: [Country]?
+       
     init(externalCountryData:Data?) {
         super.init(frame: .zero)
         self.externalCountryData = externalCountryData
@@ -70,7 +71,7 @@ open class MRCountryPicker: UIPickerView, UIPickerViewDelegate, UIPickerViewData
     
     func setup() {
         countries = externalCountryData != nil ? countryNamesByCodeForExternalData() : countryNamesByCode()
-
+        countryData = countries
         if let code = Locale.current.languageCode {
             self.selectedLocale = Locale(identifier: code)
         }
